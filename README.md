@@ -6,7 +6,7 @@ El archivo de la solución **BlazorWeb.sln** está ubicado en la carpeta de /Bla
 - [x] Obtener un único Usuario/Recurso/Tarea/Detalle
 - [x] Crear o Editar un Usuario/Recurso/Tarea/Detalle
 - [x] Borrar un Usuario/Recurso/Tarea/Detalle
-## Cosas que faltan
+## Cosas que faltarían
 - [ ] Algunas validaciones
 - [ ] Manejar algunas excepciones
 - [ ] Manejar bien los status code
