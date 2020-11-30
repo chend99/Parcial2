@@ -1,0 +1,77 @@
+﻿@page "/tareas/listado"
+@using BlazorWeb.Data
+@using Modelo.Entidades
+@inject TareaService service
+@inject NavigationManager navigation
+@inject IJSRuntime JsRuntime
+
+<h3>Tareas</h3>
+<button class="btn btn-info btn-lg mb-3" @onclick="()=>Editar(0)">Nuevo</button>
+@if (tareas == null)
+{
+
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titulo</th>
+                <th>Responsable</th>
+                <th>Vencimiento</th>
+                <th>Estimación</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in tareas)
+            {
+                var estado = item.Estado == true ? "Completo" : "Incompleto";
+                <tr>
+                    <td>@item.Titulo</td>
+                    <td>@item.Responsable.Nombre</td>
+                    <td>@item.Vencimiento</td>
+                    <td>@item.Estimacion</td>
+                    <td>
+                        @if (item.Estado)
+                        {
+
+                            <span class="badge badge-success">@estado</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning">@estado</span>
+                        }
+                    </td>
+                    <td><button class="btn btn-primary btn-sm" @onclick="()=>Editar(item.Id)">Editar</button> <button class="btn btn-danger btn-sm" @onclick="()=>Borrar(item.Id)">Borrar</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+@code {
+    private List<Tarea> tareas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tareas = await service.GetAll();
+    }
+
+    protected void Editar(int id)
+    {
+        navigation.NavigateTo("tareas/editar/" + id);
+    }
+
+    async Task Borrar(int id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Desea elimiar la tarea?");
+        if (confirmed)
+        {
+            await service.Borrar(id);
+            tareas = await service.GetAll();
+        }
+
+    }
+}

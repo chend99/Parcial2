@@ -1,0 +1,66 @@
+﻿@page "/tareas/editar/{id:int}"
+@using BlazorWeb.Data
+@using Modelo.Entidades
+@inject RecursoService Rservice
+@inject TareaService Tservice
+@inject NavigationManager navigation
+
+<EditForm Model="@Modelo" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form row">
+        <div class="form-group col-md-12">
+            <InputText class="form-control" placeholder="Nombre" @bind-Value="Modelo.Titulo" />
+        </div>
+        <div class="form-group col-md-12">
+            <InputSelect class="form-control" @bind-Value="ResponsableId">
+                <option value="0">Elija un recurso</option>
+                @if (recursos != null) // Por alguna razón si no hago esta verificación, se ejecuta el foreach antes de que se complete el GetAll()
+                {
+                    foreach (var recurso in recursos)
+                    {
+                        <option value="@recurso.Id">@recurso.Nombre</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group col-md-12">
+            <InputDate @bind-Value="Modelo.Vencimiento" />
+        </div>
+        <div class="form-group col-md-12">
+            <InputNumber class="form-control" placeholder="Estimación" @bind-Value="Modelo.Estimacion" />
+        </div>
+        <div class="form-group col-md-12">
+            Estado: <InputCheckbox @bind-Value="Modelo.Estado" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public string ResponsableId { get; set; }
+    public Tarea Modelo { get; set; } = new Tarea();
+    private List<Recurso> recursos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            Modelo = await Tservice.Get(Id);
+            ResponsableId = Modelo.ResponsableId.ToString();
+        }
+        else
+        {
+            Modelo = new Tarea();
+        }
+        recursos = await Rservice.GetAll();
+    }
+
+    private async void Guardar()
+    {
+        Modelo.ResponsableId = int.Parse(ResponsableId);
+        await Tservice.Save(Modelo);
+        navigation.NavigateTo("tareas/listado");
+    }
+}

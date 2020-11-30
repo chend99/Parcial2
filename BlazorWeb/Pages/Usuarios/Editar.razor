@@ -1,0 +1,44 @@
+﻿@page "/usuarios/editar/{id:int}"
+@using BlazorWeb.Data
+@using Modelo.Entidades
+@inject UsuarioService service
+@inject NavigationManager navigation
+
+<EditForm Model="@Modelo" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form row">
+        <div class="form-group col-md-6">
+            <InputText class="form-control" placeholder="Nombre" @bind-Value="Modelo.Nombre" />
+        </div>
+        <div class="form-group col-md-6">
+            <InputText class="form-control" placeholder="Clave" @bind-Value="Modelo.Clave" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public Usuario Modelo { get; set; } = new Usuario();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            Modelo = await service.Get(Id);
+        }
+        else
+        {
+            Modelo = new Usuario();
+        }
+    }
+
+    private async void Guardar()
+    {
+        await service.Save(Modelo);
+        navigation.NavigateTo("usuarios/listado");
+    }
+}

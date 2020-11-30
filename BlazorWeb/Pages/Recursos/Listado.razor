@@ -1,0 +1,60 @@
+﻿@page "/recursos/listado"
+@using BlazorWeb.Data
+@using Modelo.Entidades
+@inject RecursoService service
+@inject NavigationManager navigation
+@inject IJSRuntime JsRuntime
+
+<h3>Recursos</h3>
+<button class="btn btn-info btn-lg mb-3" @onclick="()=>Editar(0)">Nuevo</button>
+@if (recursos == null)
+{
+
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in recursos)
+            {
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>@item.Usuario.Nombre</td>
+                    <td><button class="btn btn-primary btn-sm" @onclick="()=>Editar(item.Id)">Editar</button> <button class="btn btn-danger btn-sm" @onclick="()=>Borrar(item.Id)">Borrar</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+@code {
+    private List<Recurso> recursos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recursos = await service.GetAll();
+    }
+
+    protected void Editar(int id)
+    {
+        navigation.NavigateTo("recursos/editar/" + id);
+    }
+
+    async Task Borrar(int id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Desea elimiar el recurso?");
+        if (confirmed)
+        {
+            await service.Borrar(id);
+            recursos = await service.GetAll();
+        }
+
+    }
+}
