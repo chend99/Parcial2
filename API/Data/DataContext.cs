@@ -29,7 +29,7 @@ namespace API.Data
                 er.ToTable("Recurso");
                 er.Property(p => p.Nombre).IsRequired();
             });
-            // Crear tabla de recursos
+            // Crear tabla de tareas
             modelBuilder.Entity<Tarea>(et => {
                 et.ToTable("Tarea");
                 et.Property(p => p.Titulo).HasMaxLength(100).IsRequired();
