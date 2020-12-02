@@ -3,18 +3,23 @@
 @using Modelo.Entidades
 @inject RecursoService Rservice
 @inject TareaService Tservice
+@inject DetalleService Dservice
 @inject NavigationManager navigation
+@inject IJSRuntime JsRuntime
 
+<h1>Editar Tarea</h1>
 <EditForm Model="@Modelo" OnValidSubmit="@Guardar">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form row">
         <div class="form-group col-md-12">
+            <label for="titulo">Titulo</label>
             <InputText class="form-control" placeholder="Nombre" @bind-Value="Modelo.Titulo" />
         </div>
         <div class="form-group col-md-12">
+            <label for="responsable">Responsable</label>
             <InputSelect class="form-control" @bind-Value="ResponsableId">
-                <option value="0">Elija un recurso</option>
+                <option value="0">Elija un responsable</option>
                 @if (recursos != null) // Por alguna razón si no hago esta verificación, se ejecuta el foreach antes de que se complete el GetAll()
                 {
                     foreach (var recurso in recursos)
@@ -25,9 +30,13 @@
             </InputSelect>
         </div>
         <div class="form-group col-md-12">
+            <label for="vencimiento">Vencimiento</label>
+        </div>
+        <div class="form-group col-md-12">
             <InputDate @bind-Value="Modelo.Vencimiento" />
         </div>
         <div class="form-group col-md-12">
+            <label for="estimacion">Estimación</label>
             <InputNumber class="form-control" placeholder="Estimación" @bind-Value="Modelo.Estimacion" />
         </div>
         <div class="form-group col-md-12">
@@ -36,12 +45,49 @@
     </div>
     <button type="submit" class="btn btn-primary">Guardar</button>
 </EditForm>
+@if (detalles == null)
+{
+
+}
+else
+{
+    <h2 class="mt-3">Detalles</h2>
+    <button class="btn btn-info btn-lg mb-3" @onclick="()=>Edit(0)">Nuevo</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tiempo</th>
+                <th>Recurso</th>
+                <th>Tarea</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in detalles)
+            {
+                @if (item.TareaId == Modelo.Id)
+                {
+                    <tr>
+                        <td>@item.Fecha</td>
+                        <td>@item.Tiempo</td>
+                        <td>@item.Recurso.Nombre</td>
+                        <td>@item.Tarea.Titulo</td>
+                        <td><button class="btn btn-primary btn-sm" @onclick="()=>Edit(item.Id)">Editar</button> <button class="btn btn-danger btn-sm" @onclick="()=>Borrar(item.Id)">Borrar</button></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+}
 @code {
     [Parameter]
     public int Id { get; set; }
     public string ResponsableId { get; set; }
     public Tarea Modelo { get; set; } = new Tarea();
     private List<Recurso> recursos;
+    private List<Detalle> detalles;
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,6 +101,7 @@
             Modelo = new Tarea();
         }
         recursos = await Rservice.GetAll();
+        detalles = await Dservice.GetAll();
     }
 
     private async void Guardar()
@@ -62,5 +109,20 @@
         Modelo.ResponsableId = int.Parse(ResponsableId);
         await Tservice.Save(Modelo);
         navigation.NavigateTo("tareas/listado");
+    }
+    protected void Edit(int id)
+    {
+        navigation.NavigateTo("detalles/editar/" + id);
+    }
+
+    async Task Borrar(int id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Desea elimiar el detalle?");
+        if (confirmed)
+        {
+            await Dservice.Borrar(id);
+            detalles = await Dservice.GetAll();
+        }
+
     }
 }

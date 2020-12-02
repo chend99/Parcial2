@@ -6,17 +6,23 @@
 @inject TareaService Tservice
 @inject NavigationManager navigation
 
+<h1>Editar Detalle</h1>
 <EditForm Model="@Modelo" OnValidSubmit="@Guardar">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form row">
         <div class="form-group col-md-12">
+            <label for="fecha">Fecha</label>
+        </div>
+        <div class="form-group col-md-12">
             <InputDate @bind-Value="Modelo.Fecha" />
         </div>
         <div class="form-group col-md-12">
+            <label for="estimacion">Estimación</label>
             <InputNumber class="form-control" placeholder="Estimación" @bind-Value="Modelo.Tiempo" />
         </div>
         <div class="form-group col-md-12">
+            <label for="recurso">Recurso</label>
             <InputSelect class="form-control" @bind-Value="RecursoId">
                 <option value="0">Elija un recurso</option>
                 @if (recursos != null) // Por alguna razón si no hago esta verificación, se ejecuta el foreach antes de que se complete el GetAll()
@@ -29,6 +35,7 @@
             </InputSelect>
         </div>
         <div class="form-group col-md-12">
+            <label for="recurso">Tarea</label>
             <InputSelect class="form-control" @bind-Value="TareaId">
                 <option value="0">Elija una tarea</option>
                 @if (tareas != null) // Por alguna razón si no hago esta verificación, se ejecuta el foreach antes de que se complete el GetAll()
